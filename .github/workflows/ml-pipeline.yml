@@ -1,0 +1,50 @@
+name: ML Pipeline CI
+
+on:
+    push:
+        branches: [main, feature/ml-improvements]
+    pull_request:
+        branches: [main]
+
+jobs:
+    run-ml-pipeline:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.11"
+
+            - name: Install dependencies
+              run: |
+                  pip install pandas numpy scikit-learn
+
+            - name: Generate synthetic data
+              run: |
+                  cd ml
+                  python generate_data.py
+
+            - name: Train disengagement model
+              run: |
+                  cd ml
+                  python train_model.py
+
+            - name: Train propensity model
+              run: |
+                  cd ml
+                  python train_propensity_model.py
+
+            - name: Run predictions
+              run: |
+                  cd ml
+                  python predict.py
+
+            - name: Confirm output
+              run: |
+                  echo "ML Pipeline completed successfully"
+                  ls data/
+                  
