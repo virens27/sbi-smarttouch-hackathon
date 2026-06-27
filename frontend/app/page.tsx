@@ -8,6 +8,7 @@ interface Stats {
   disengaged: number;
   active: number;
   disengagement_rate: number;
+  product_distribution: Record<string, number>;
 }
 
 interface Customer {
@@ -15,6 +16,7 @@ interface Customer {
   age: number;
   disengagement_probability: number;
   nudge_message: string;
+  recommended_product: string;
 }
 
 export default function Home() {
@@ -54,9 +56,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          SBI SmartTouch
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">SBI SmartTouch</h1>
         <p className="text-gray-500 mt-1">
           Agentic AI Customer Engagement Dashboard
         </p>
@@ -92,6 +92,32 @@ export default function Home() {
         </div>
       )}
 
+      {/* Product Distribution */}
+      {stats && stats.product_distribution && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Product Recommendation Breakdown
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            ML-predicted product each at-risk customer is most likely to adopt
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Object.entries(stats.product_distribution).map(([product, count]) => (
+              <div
+                key={product}
+                className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center"
+              >
+                <p className="text-2xl font-bold text-blue-700">{count}</p>
+                <p className="text-sm text-blue-600 mt-1">{product}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {((count / stats.disengaged) * 100).toFixed(1)}% of disengaged
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* At-Risk Customers Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
@@ -99,7 +125,7 @@ export default function Home() {
             Top At-Risk Customers
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Customers with highest disengagement probability — 
+            Customers with highest disengagement probability —
             personalized nudges auto-generated
           </p>
         </div>
@@ -117,7 +143,10 @@ export default function Home() {
                   Risk Score
                 </th>
                 <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
-                  Recommended Nudge
+                  Recommended Product
+                </th>
+                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  Nudge Message
                 </th>
               </tr>
             </thead>
@@ -133,6 +162,11 @@ export default function Home() {
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
                       {(customer.disengagement_probability * 100).toFixed(0)}%
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                      {customer.recommended_product}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600 max-w-md">
